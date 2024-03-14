@@ -1,0 +1,26 @@
+{
+  "name": "book_review_api",
+  "version": "1.0.0",
+  "description": "Server-side online book review application integrated with a secure REST API server",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbdelazizKazoum/book_review_api.git"
+  },
+  "author": "abdelaziz_kazoum",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AbdelazizKazoum/book_review_api/issues"
+  },
+  "homepage": "https://github.com/AbdelazizKazoum/book_review_api#readme",
+  "dependencies": {
+    "express": "^4.18.3",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.0"
+  }
+}
