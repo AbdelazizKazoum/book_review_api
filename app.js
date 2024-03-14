@@ -1,6 +1,8 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import session from "express-session";
+import general from "./routes/general.js";
+import auth_users from "./routes/auth_users.js";
 
 const app = express();
 const port = 4000;
@@ -26,6 +28,9 @@ app.use("/customer/auth/*", function auth(req, res, next) {
     return res.status(403).json({ message: "User not logged in!" });
   }
 });
+
+app.use("/customer", auth_users);
+app.use("/", general);
 
 app.get("/", (req, res) => {
   res.send("hello world!!");
