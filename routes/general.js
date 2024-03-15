@@ -1,7 +1,11 @@
 import express from "express";
 import books from "./booksdb.js";
+let users = [];
 
 const public_users = express.Router();
+
+// register a user
+public_users.post("/register", (req, res) => {});
 
 //get list of books
 public_users.get("/", (req, res) => {
@@ -60,6 +64,17 @@ public_users.get("/title/:title", (req, res) => {
       .json({ message: "we have no book with title " + title });
   } else {
     return res.status(500).json({ message: "invalid book title !" });
+  }
+});
+
+//get reviews based on isbn
+public_users.get("/reviews/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const reviews = books[isbn].reviews;
+  if (isbn) {
+    return res.status(200).json({ data: reviews });
+  } else {
+    return res.status(400).json({ message: "Enter a valid isbn !" });
   }
 });
 
