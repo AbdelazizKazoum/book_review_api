@@ -1,11 +1,27 @@
 import express from "express";
 import books from "./booksdb.js";
-let users = [];
-
+import { users } from "./auth_users.js";
 const public_users = express.Router();
 
 // register a user
-public_users.post("/register", (req, res) => {});
+public_users.post("/register", (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (password && username) {
+    const userExists = users.find((item) => item.username === username);
+    if (!userExists) {
+      users.push({ username, password });
+      return res.status(201).json({ message: "User created succefully" });
+    } else {
+      return res.status(409).json({ message: "User already exists !" });
+    }
+  } else {
+    return res
+      .status(400)
+      .json({ message: "Please provide a valid username and password!" });
+  }
+});
 
 //get list of books
 public_users.get("/", (req, res) => {
