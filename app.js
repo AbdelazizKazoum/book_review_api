@@ -16,9 +16,9 @@ app.use(
 app.use("/customer/auth/*", function auth(req, res, next) {
   if (req.session.authorization) {
     const token = req.session.authorization["accesstoken"];
-    jwt.verify(token, "secret", (err, user) => {
+    jwt.verify(token, "secret", (err, data) => {
       if (!err) {
-        req.user = user;
+        req.user = data.user;
         next();
       } else {
         return res.status(403).json({ message: "user not authorized!" });

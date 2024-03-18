@@ -1,42 +1,37 @@
 import express from "express";
 import books from "./booksdb.js";
-import { users } from "./auth_users.js";
+let users = [];
+
 const public_users = express.Router();
 
 // register a user
-public_users.post("/register", (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-
-  if (password && username) {
-    const userExists = users.find((item) => item.username === username);
-    if (!userExists) {
-      users.push({ username, password });
-      return res.status(201).json({ message: "User created succefully" });
-    } else {
-      return res.status(409).json({ message: "User already exists !" });
-    }
-  } else {
-    return res
-      .status(400)
-      .json({ message: "Please provide a valid username and password!" });
-  }
-});
+public_users.post("/register", (req, res) => {});
 
 //get list of books
 public_users.get("/", (req, res) => {
-  return res.status(200).json(JSON.stringify(books, null, 4));
+  const getAllbooks = new Promise((resolve, reject) => {
+    resolve(JSON.stringify(books, null, 4));
+  });
+
+  getAllbooks
+    .then((result) => res.status(200).json({ data: result }))
+    .catch((err) => {
+      return res.status(500).json({ erorr: err });
+    });
 });
 
 //get book based on ISBN
 public_users.get("/isbn/:isbn", (req, res) => {
   const isbn = req.params.isbn;
 
-  if (isbn) {
-    return res.status(200).json({ data: books[isbn] });
-  } else {
-    return res.status(404).json({ message: "book not found" });
-  }
+  const getBookIsbn = new Promise((resolve, reject) => {
+    if (isbn) resolve(books[isbn]);
+    else reject("book not found");
+  });
+
+  getBookIsbn
+    .then((result) => res.status(200).json({ data: result }))
+    .catch((err) => res.status(404).json({ message: "book not found" }));
 });
 
 //get the books based on  the author
@@ -44,6 +39,7 @@ public_users.get("/author/:author", (req, res) => {
   const author = req.params.author;
 
   let authorsBooks = [];
+
   if (author) {
     for (const key in books) {
       if (books[key].author === author) {

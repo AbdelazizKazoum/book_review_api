@@ -45,36 +45,33 @@ regd_users.post("/login", (req, res) => {
   }
 });
 
-// add a book review
+// adding and modifying a book review
 regd_users.post("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const review = req.query.review;
   let token = req.session.authorization["accesstoken"];
 
-  jwt.verify(token, "secret", (err, data) => {
-    if (!err) {
-      books[isbn].reviews[data.user.username] = review;
-      return res.status(200).json({ data: books[isbn].reviews });
-    } else {
-      return res.status(401).json({ message: "Log in first" });
-    }
-  });
+  if (req.user) {
+    const username = req.user.username;
+    books[isbn].reviews[username] = review;
+    return res.status(200).json({ data: books[isbn].reviews });
+  }
+
+  return res.status(401).json({ message: "Log in first" });
 });
 
 // Delete review
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
-  const token = req.session.authorization["accesstoken"];
+  if (req.user) {
+    const username = req.user?.username;
+    delete books[isbn].reviews[username];
+    return res
+      .status(200)
+      .json({ message: ` ${username} review has been deleted successfully ` });
+  }
 
-  jwt.verify(token, "secret", (err, data) => {
-    if (!err) {
-      console.log(books[isbn]?.review[data.user.username]);
-      // delete books[isbn]?.review[data.user.username];
-      return res.status(200).json({ data: books[isbn].review });
-    } else {
-      return res.status(401).json({ message: "log in first" });
-    }
-  });
+  return res.status(401).json({ message: "log in first" });
 });
 
 export default regd_users;
