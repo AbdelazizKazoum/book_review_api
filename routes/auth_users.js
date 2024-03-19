@@ -6,7 +6,7 @@ const regd_users = express.Router();
 
 export let users = [];
 
-const isValid = (username) => {
+export const isValid = (username) => {
   const userExists = users.find((item) => item.username === username);
   if (userExists) return true;
 

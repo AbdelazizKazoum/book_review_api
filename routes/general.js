@@ -1,11 +1,25 @@
 import express from "express";
 import books from "./booksdb.js";
-let users = [];
+import { isValid, users } from "./auth_users.js";
 
 const public_users = express.Router();
 
 // register a user
-public_users.post("/register", (req, res) => {});
+public_users.post("/register", (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (username && password) {
+    if (!isValid(username)) {
+      users.push({ username, password });
+      return res.status(201).json({ message: "user created successfully" });
+    }
+
+    return res.status(409).json({ message: "user already exists !" });
+  }
+
+  return res.status(400).json({ message: "Please provide valid data !" });
+});
 
 //get list of books
 public_users.get("/", (req, res) => {
@@ -26,34 +40,41 @@ public_users.get("/isbn/:isbn", (req, res) => {
 
   const getBookIsbn = new Promise((resolve, reject) => {
     if (isbn) resolve(books[isbn]);
-    else reject("book not found");
+    else reject("Enter a valid isbn");
   });
 
   getBookIsbn
     .then((result) => res.status(200).json({ data: result }))
-    .catch((err) => res.status(404).json({ message: "book not found" }));
+    .catch((err) => res.status(404).json({ message: err }));
 });
 
 //get the books based on  the author
 public_users.get("/author/:author", (req, res) => {
   const author = req.params.author;
 
+  console.log(author);
+
   let authorsBooks = [];
 
-  if (author) {
+  //declare Promise
+  const getbooksByAuthor = new Promise((resolve, reject) => {
     for (const key in books) {
       if (books[key].author === author) {
         authorsBooks.push(books[key]);
       }
     }
-
     if (authorsBooks.length > 0) {
-      return res.status(200).json({ data: authorsBooks });
+      resolve(authorsBooks);
     } else {
-      return res
-        .status(404)
-        .json({ message: "We have no book with author : " + author });
+      reject("We have no book with author : " + author);
     }
+  });
+
+  if (author) {
+    // Call Primise
+    getbooksByAuthor
+      .then((result) => res.status(200).json({ data: result }))
+      .catch((err) => res.status(404).json({ message: err }));
   } else {
     return res.status(500).json({ message: "Provide a valid author name !" });
   }
@@ -63,24 +84,26 @@ public_users.get("/author/:author", (req, res) => {
 public_users.get("/title/:title", (req, res) => {
   const title = req.params.title;
 
-  console.log(title);
+  // declare Promise
+  const getBookByTitle = new Promise((resolve, reject) => {
+    for (const key in books) {
+      if (books[key].title === title) resolve(books[key]);
+      else reject("we have no book with title " + title);
+    }
+  });
 
   if (title) {
-    for (const key in books) {
-      if (books[key].title === title) {
-        return res.status(200).json({ data: books[key] });
-      }
-    }
-    return res
-      .status(404)
-      .json({ message: "we have no book with title " + title });
+    //Call the Promise
+    getBookByTitle
+      .then((result) => res.status(200).json({ data: result }))
+      .catch((err) => res.status(404).json({ message: err }));
   } else {
     return res.status(500).json({ message: "invalid book title !" });
   }
 });
 
 //get reviews based on isbn
-public_users.get("/reviews/:isbn", (req, res) => {
+public_users.get("/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const reviews = books[isbn].reviews;
   if (isbn) {
